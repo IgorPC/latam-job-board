@@ -11,5 +11,6 @@ export interface RawJob {
 }
 
 export type ProcessedJob = Omit<RawJob, '_desc'> & {
+  description: string;
   acceptsLatam: 'Yes' | 'No' | 'Maybe';
 };

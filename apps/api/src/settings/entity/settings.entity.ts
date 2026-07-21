@@ -6,6 +6,8 @@ export enum SettingsJobType {
   BOTH = 'both',
 }
 
+export const DEFAULT_LATAM_COUNTRY = 'Brazil';
+
 export const DEFAULT_ENABLED_SOURCES = [
   'remoteok',
   'arbeitnow',
@@ -37,6 +39,13 @@ export class Settings {
   @Column({ name: 'job_type', type: 'enum', enum: SettingsJobType })
   jobType: SettingsJobType;
 
+  // English name of the LATAM country to match against scraped job text
+  // (e.g. "Brazil", "Argentina") — drives the dynamic keyword in
+  // scraping/utils/filters.ts's acceptsLatam(), so the board isn't hardcoded
+  // to Brazil for users elsewhere in Latin America.
+  @Column({ name: 'latam_country', length: 60, default: DEFAULT_LATAM_COUNTRY })
+  latamCountry: string;
+
   @Column({ name: 'enabled_sources', type: 'json', nullable: true })
   enabledSources: string[];
 
@@ -45,4 +54,10 @@ export class Settings {
 
   @Column({ name: 'last_sync_at', type: 'datetime', nullable: true })
   lastSyncAt: Date | null;
+
+  // Durable guard against concurrent scraping runs (manual trigger vs. cron)
+  // and the source of truth for "is a scan in progress" across page reloads —
+  // the in-memory flag in ScrapingService alone wouldn't survive an API restart.
+  @Column({ name: 'is_scraping_running', default: false })
+  isScrapingRunning: boolean;
 }

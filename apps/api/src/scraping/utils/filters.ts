@@ -20,7 +20,7 @@ export function isRecent(pubDate: string, maxAgeDays: number): boolean {
 const POSITIVE_LATAM_KW = [
   'worldwide', 'anywhere', 'work from anywhere', 'global remote', 'globally',
   'all countries', 'no location restriction', 'latam', 'latin america',
-  'south america', 'brazil', 'brasil', 'international candidates',
+  'south america', 'international candidates',
   'remote worldwide', 'open to all', 'any country', 'any location',
 ];
 
@@ -30,15 +30,22 @@ const NEGATIVE_LATAM_KW = [
   'authorized to work in', 'eligible to work in', 'work authorization required',
   'north america only', 'united states only', 'based in the us', 'based in the uk',
   'based in europe', 'us-based', 'uk-based', 'eu-based', 'us citizens only',
-  'us residents only', 'not available in brazil', 'not available in latam',
-  'excluding latam', 'excluding brazil',
+  'us residents only', 'not available in latam', 'excluding latam',
 ];
 
-export function acceptsLatam(title: string, desc: string, type: string): 'Yes' | 'No' | 'Maybe' {
+// `country` is the user-configured LATAM country (e.g. "Brazil", "Argentina")
+// — kept dynamic so the board isn't hardcoded to Brazil for other LATAM users.
+// Negative phrasing is checked first: "not available in brazil" must not be
+// short-circuited by the generic positive "brazil" substring match.
+export function acceptsLatam(title: string, desc: string, type: string, country: string): 'Yes' | 'No' | 'Maybe' {
   if (type.toLowerCase().includes('relocation')) return 'Yes';
 
   const text = `${title} ${desc}`.toLowerCase();
-  if (POSITIVE_LATAM_KW.some((kw) => text.includes(kw))) return 'Yes';
+  const countryKw = country.toLowerCase();
+
   if (NEGATIVE_LATAM_KW.some((kw) => text.includes(kw))) return 'No';
+  if (countryKw && (text.includes(`not available in ${countryKw}`) || text.includes(`excluding ${countryKw}`))) return 'No';
+  if (POSITIVE_LATAM_KW.some((kw) => text.includes(kw))) return 'Yes';
+  if (countryKw && text.includes(countryKw)) return 'Yes';
   return 'Maybe';
 }

@@ -4,6 +4,7 @@ export interface ScrapingProfile {
   primaryStack: string[];
   secondaryStack: string[];
   jobType: string;
+  country: string;
 }
 
 export interface ScrapingContext {

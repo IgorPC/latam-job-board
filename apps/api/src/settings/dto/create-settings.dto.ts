@@ -1,6 +1,6 @@
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsEnum, IsString, MaxLength } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsEnum, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { SettingsJobType } from '../entity/settings.entity';
+import { DEFAULT_LATAM_COUNTRY, SettingsJobType } from '../entity/settings.entity';
 import {
   PRIMARY_STACK_MAX,
   PRIMARY_STACK_MIN,
@@ -31,4 +31,14 @@ export class CreateSettingsDto {
 
   @IsEnum(SettingsJobType)
   jobType: SettingsJobType;
+
+  // English name only (e.g. "Brazil", "Argentina") — matched as a keyword
+  // against scraped job text, so it must be spelled the way postings
+  // themselves would spell it.
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  @Matches(/^[a-zA-Z\s-]+$/, { message: 'latamCountry must be spelled in English (letters, spaces, hyphens only)' })
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  latamCountry: string = DEFAULT_LATAM_COUNTRY;
 }

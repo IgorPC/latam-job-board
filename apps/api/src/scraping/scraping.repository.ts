@@ -23,9 +23,20 @@ export class ScrapingRepository {
     let newCount = 0;
     for (const job of eligible) {
       const result = await this.dataSource.query(
-        `INSERT IGNORE INTO jobs (title, company, source, url, stack, type, salary, accepts_latam, published_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [job.title, job.company, job.source, job.url, job.stack, job.type, job.salary, job.acceptsLatam, job.date || null],
+        `INSERT IGNORE INTO jobs (title, company, source, url, stack, description, type, salary, accepts_latam, published_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          job.title,
+          job.company,
+          job.source,
+          job.url,
+          job.stack,
+          job.description,
+          job.type,
+          job.salary,
+          job.acceptsLatam,
+          job.date || null,
+        ],
       );
 
       if (result?.affectedRows > 0) newCount++;

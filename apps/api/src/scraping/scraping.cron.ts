@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { ScrapingService } from './scraping.service';
 import { CRON_SCHEDULE } from './consts/scraping.consts';
@@ -12,9 +12,13 @@ export class ScrapingCron {
   @Cron(CRON_SCHEDULE)
   async handleCron() {
     try {
-      const result = await this.scrapingService.run({ initialRun: false });
+      const result = await this.scrapingService.runNow({ initialRun: false });
       this.logger.log(`Cron run completed newJobs=${result.newJobs} sourcesRun=${result.sourcesRun}`);
     } catch (err) {
+      if (err instanceof ConflictException) {
+        this.logger.warn('Cron skipped: a scraping run was already in progress');
+        return;
+      }
       this.logger.error('Cron run failed', err instanceof Error ? err.stack : String(err));
     }
   }

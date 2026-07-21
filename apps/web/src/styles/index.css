@@ -1,0 +1,51 @@
+@import "tailwindcss";
+@import "./theme.css";
+
+/* Untitled UI components use the `dark:` variant gated on this class instead
+   of `prefers-color-scheme` — set once, permanently, on <html> since this
+   app has no light-mode toggle. */
+@custom-variant dark (&:where(.dark-mode, .dark-mode *));
+
+@utility transition-inherit-all {
+  transition-property: inherit;
+  transition-duration: inherit;
+  transition-timing-function: inherit;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-alabaster-grey font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-cta via-cta-light to-accent bg-clip-text text-transparent;
+  }
+
+  /* Minimal typography for sanitized, scraped job-description HTML. */
+  .job-description :where(p) {
+    margin-bottom: 0.75em;
+  }
+  .job-description :where(ul, ol) {
+    margin: 0.5em 0 0.75em 1.25em;
+  }
+  .job-description :where(ul) {
+    list-style: disc;
+  }
+  .job-description :where(ol) {
+    list-style: decimal;
+  }
+  .job-description :where(li) {
+    margin-bottom: 0.25em;
+  }
+  .job-description :where(strong, b) {
+    @apply text-primary font-semibold;
+  }
+  .job-description :where(a) {
+    @apply text-cta underline;
+  }
+  .job-description :where(h1, h2, h3, h4) {
+    @apply text-primary mt-4 mb-2 font-semibold;
+  }
+}

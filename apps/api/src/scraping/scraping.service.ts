@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger } from '@nestjs/common';
 import { SettingsRepository } from '../settings/settings.repository';
 import { ScrapingRepository } from './scraping.repository';
-import { ScrapingSource } from './interfaces/scraping-context.interface';
+import { ScrapingGateway } from './scraping.gateway';
+import { ScrapingProfile, ScrapingSource } from './interfaces/scraping-context.interface';
 import { ProcessedJob, RawJob } from './interfaces/raw-job.interface';
 import { isRelevant, isRecent, acceptsLatam } from './utils/filters';
 import { detectStack, detectType, extractSalary } from './utils/detectors';
@@ -58,9 +59,16 @@ interface RunOptions {
 export class ScrapingService {
   private readonly logger = new Logger(ScrapingService.name);
 
+  // Fast in-memory guard checked before the DB round-trip — the persisted
+  // `is_scraping_running` column is the durable source of truth (survives a
+  // restart/reload), this just avoids a race between two near-simultaneous
+  // requests both reading the DB flag as false before either sets it.
+  private isRunningGuard = false;
+
   constructor(
     private readonly settingsRepo: SettingsRepository,
     private readonly scrapingRepo: ScrapingRepository,
+    private readonly gateway: ScrapingGateway,
   ) {}
 
   private resolveEnabledSources(primaryStack: string[], secondaryStack: string[], base: string[]): string[] {
@@ -76,7 +84,58 @@ export class ScrapingService {
     return [...sources];
   }
 
-  async run(options: RunOptions = {}): Promise<{ newJobs: number; sourcesRun: number }> {
+  // Fire-and-forget entry point for the HTTP endpoint — a full run can take
+  // several minutes (every source, in series), far longer than any sane HTTP
+  // client timeout, so the request must not block on it. Starts the run in
+  // the background and returns as soon as it's safely marked "in progress".
+  async triggerRun(options: RunOptions = {}): Promise<{ started: boolean }> {
+    await this.assertConfigured();
+    await this.beginRun();
+
+    this.executeRun(options)
+      .catch((err) => {
+        this.logger.error(`background run failed: ${err instanceof Error ? err.message : String(err)}`);
+      })
+      .finally(() => this.endRun());
+
+    return { started: true };
+  }
+
+  // Awaited entry point for the cron job — nothing is waiting on an HTTP
+  // response here, so it can run to completion and log the final numbers.
+  async runNow(options: RunOptions = {}): Promise<{ newJobs: number; sourcesRun: number }> {
+    await this.assertConfigured();
+    await this.beginRun();
+    try {
+      return await this.executeRun(options);
+    } finally {
+      await this.endRun();
+    }
+  }
+
+  private async assertConfigured(): Promise<void> {
+    const settings = await this.settingsRepo.findCurrent();
+    if (!settings) {
+      throw new BadRequestException('Configure your preferences before running the scraper (POST /settings).');
+    }
+  }
+
+  private async beginRun(): Promise<void> {
+    if (this.isRunningGuard) {
+      throw new ConflictException('A scraping run is already in progress.');
+    }
+    this.isRunningGuard = true;
+    await this.settingsRepo.settings.update({ id: 1 }, { isScrapingRunning: true });
+    this.gateway.broadcastStatus({ isRunning: true });
+  }
+
+  private async endRun(): Promise<void> {
+    this.isRunningGuard = false;
+    await this.settingsRepo.settings.update({ id: 1 }, { isScrapingRunning: false });
+    this.gateway.broadcastStatus({ isRunning: false });
+  }
+
+  private async executeRun(options: RunOptions): Promise<{ newJobs: number; sourcesRun: number }> {
     const settings = await this.settingsRepo.findCurrent();
     if (!settings) {
       throw new BadRequestException('Configure your preferences before running the scraper (POST /settings).');
@@ -92,6 +151,7 @@ export class ScrapingService {
       primaryStack: settings.primaryStack,
       secondaryStack: settings.secondaryStack,
       jobType: settings.jobType,
+      country: settings.latamCountry,
     };
 
     const processed: ProcessedJob[] = [];
@@ -114,29 +174,29 @@ export class ScrapingService {
     await this.settingsRepo.settings.update({ id: 1 }, { lastSyncAt: new Date() });
     this.logger.log(`run finished sources=${sources.length} processed=${processed.length} newJobs=${newJobs}`);
 
-    return { newJobs, sourcesRun: sources.length };
+    const result = { newJobs, sourcesRun: sources.length };
+    this.gateway.broadcastCompleted(result);
+    return result;
   }
 
-  private processRawJob(
-    job: RawJob,
-    profile: { primaryStack: string[]; secondaryStack: string[]; jobType: string },
-    maxAgeDays: number,
-  ): ProcessedJob | null {
+  private processRawJob(job: RawJob, profile: ScrapingProfile, maxAgeDays: number): ProcessedJob | null {
     const { _desc, ...rest } = job;
 
     if (!isRelevant(job.title, _desc, profile)) return null;
     if (!isRecent(job.date, maxAgeDays)) return null;
 
-    const type = job.type || detectType(job.title, _desc);
+    const type = job.type || detectType(job.title, _desc, false, profile.country);
     const stack = job.stack || detectStack(job.title, _desc);
     const salary = job.salary || extractSalary(_desc);
+    const description = _desc.replace(/\s+/g, ' ').trim().slice(0, 8000);
 
     return {
       ...rest,
       type,
       stack,
       salary,
-      acceptsLatam: acceptsLatam(job.title, _desc, type),
+      description,
+      acceptsLatam: acceptsLatam(job.title, _desc, type, profile.country),
     };
   }
 
@@ -152,6 +212,7 @@ export class ScrapingService {
       lastSyncAt,
       nextRunAt: next.toISOString(),
       setupCompleted: settings?.setupCompleted ?? false,
+      isRunning: settings?.isScrapingRunning ?? false,
     };
   }
 }

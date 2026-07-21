@@ -25,6 +25,9 @@ export class Job {
   @Column({ length: 500, default: '' })
   stack: string;
 
+  @Column({ type: 'mediumtext', nullable: true })
+  description: string | null;
+
   @Column({ length: 100, default: '' })
   type: string;
 

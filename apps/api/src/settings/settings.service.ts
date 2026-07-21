@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SettingsRepository } from './settings.repository';
 import { CreateSettingsDto } from './dto/create-settings.dto';
-import { DEFAULT_ENABLED_SOURCES } from './entity/settings.entity';
+import { DEFAULT_ENABLED_SOURCES, DEFAULT_LATAM_COUNTRY } from './entity/settings.entity';
 
 @Injectable()
 export class SettingsService {
@@ -19,8 +19,10 @@ export class SettingsService {
         secondaryStack: [],
         jobType: null,
         enabledSources: DEFAULT_ENABLED_SOURCES,
+        latamCountry: DEFAULT_LATAM_COUNTRY,
         setupCompleted: false,
         lastSyncAt: null,
+        isScrapingRunning: false,
       };
     }
     return current;
@@ -34,9 +36,11 @@ export class SettingsService {
       primaryStack: dto.primaryStack,
       secondaryStack: dto.secondaryStack,
       jobType: dto.jobType,
+      latamCountry: dto.latamCountry || DEFAULT_LATAM_COUNTRY,
       enabledSources: existing?.enabledSources ?? DEFAULT_ENABLED_SOURCES,
       setupCompleted: true,
       lastSyncAt: existing?.lastSyncAt ?? null,
+      isScrapingRunning: existing?.isScrapingRunning ?? false,
     });
 
     const saved = await this.repo.settings.save(settings);

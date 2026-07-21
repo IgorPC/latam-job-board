@@ -1,4 +1,4 @@
-import { IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import { IsArray, IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
 export const JOBS_SINCE_VALUES = ['24h', '3d', '7d', 'all'] as const;
@@ -28,6 +28,13 @@ export class FilterJobsDto {
   @IsOptional()
   @IsIn(JOBS_LATAM_VALUES)
   latam?: JobsLatam;
+
+  @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(100, { each: true })
+  sources?: string[];
 
   @IsOptional()
   @Type(() => Number)

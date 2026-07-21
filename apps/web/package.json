@@ -1,0 +1,44 @@
+{
+  "name": "latam-job-board-web",
+  "version": "0.1.0",
+  "description": "LATAM Job Board — frontend for browsing scraped remote/relocation jobs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "@react-stately/utils": "^3.12.1",
+    "@tanstack/react-query": "^5.59.0",
+    "@untitledui/icons": "^0.0.22",
+    "axios": "^1.7.7",
+    "clsx": "^2.1.1",
+    "dompurify": "^3.1.6",
+    "input-otp": "^1.4.2",
+    "react": "^18.3.1",
+    "react-aria": "^3.50.0",
+    "react-aria-components": "^1.19.0",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
+    "react-router-dom": "^6.26.2",
+    "socket.io-client": "^4.8.0",
+    "tailwind-merge": "^3.6.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/dompurify": "^3.0.5",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "postcss": "^8.4.45",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.3"
+  }
+}

@@ -156,15 +156,19 @@ const RELOCATION_KW = [
 ];
 
 const REMOTE_GLOBAL_KW = [
-  'worldwide', 'anywhere', 'global remote', 'fully remote', 'latam', 'brazil',
+  'worldwide', 'anywhere', 'global remote', 'fully remote', 'latam',
   'south america', 'latin america', 'all countries', 'international',
   'remote worldwide', 'open to all', 'work from anywhere',
 ];
 
-export function detectType(title: string, description: string, defaultRemote = false): string {
+export function detectType(title: string, description: string, defaultRemote = false, country = ''): string {
   const text = `${title} ${description}`.toLowerCase();
   const isRelocation = RELOCATION_KW.some((kw) => text.includes(kw));
-  const isRemote = defaultRemote || REMOTE_GLOBAL_KW.some((kw) => text.includes(kw)) || text.includes('remote');
+  const isRemote =
+    defaultRemote ||
+    REMOTE_GLOBAL_KW.some((kw) => text.includes(kw)) ||
+    (country && text.includes(country.toLowerCase())) ||
+    text.includes('remote');
 
   if (isRelocation && isRemote) return 'Remote / Relocation';
   if (isRelocation) return 'Relocation';

@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, InternalServerErrorException, Logger, Post, Query } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpException, HttpStatus, InternalServerErrorException, Logger, Post, Query } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ScrapingService } from './scraping.service';
 import { RunScrapingDto } from './dto/run-scraping.dto';
@@ -10,11 +10,16 @@ export class ScrapingController {
 
   constructor(private readonly scraping: ScrapingService) {}
 
+  // Fire-and-forget: responds as soon as the run is safely marked "in
+  // progress" — the actual scraping (minutes long) continues in the
+  // background. Clients get the result via the scraping:completed WebSocket
+  // event, with GET /scraping/status as a durable fallback.
+  @HttpCode(HttpStatus.ACCEPTED)
   @Throttle({ default: { ttl: 60_000, limit: 3 } })
   @Post(SCRAPING_ROUTES.RUN)
   async run(@Query() dto: RunScrapingDto) {
     try {
-      return await this.scraping.run({ initialRun: dto.initialRun });
+      return await this.scraping.triggerRun({ initialRun: dto.initialRun });
     } catch (err) {
       if (err instanceof HttpException) throw err;
       this.logger.error('run failed', err instanceof Error ? err.stack : String(err));

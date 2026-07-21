@@ -57,10 +57,21 @@ Stored `type` values: `Remote`, `Relocation`, `Remote / Relocation`, `Onsite`. S
 
 | Method | Route | Description |
 |---|---|---|
-| `POST` | `/scraping/run?initialRun=true` | Triggers scraping manually. `initialRun=true` covers the last 15 days (wizard's initial search); without the parameter, it covers 24h (same behavior as the cron) |
-| `GET` | `/scraping/status` | Returns `lastSyncAt` and `nextRunAt` (next 9am) for the frontend countdown |
+| `POST` | `/scraping/run?initialRun=true` | **Fire-and-forget.** Responds `202 Accepted` with `{ started: true }` as soon as the run is marked in progress — a full run takes minutes, far longer than any sane HTTP timeout, so the request doesn't wait for it. `initialRun=true` covers the last 15 days (wizard's initial search); without it, covers 24h (same as the cron). Returns `409 Conflict` if a run is already in progress. |
+| `GET` | `/scraping/status` | Returns `lastSyncAt`, `nextRunAt` (next 9am), `setupCompleted`, and `isRunning` (the durable `settings.is_scraping_running` flag) |
 
-Automatic daily cron at 9am (`@Cron('0 9 * * *')`) runs the same flow as `POST /scraping/run` without `initialRun`.
+Automatic daily cron at 9am (`@Cron('0 9 * * *')`) runs the same flow, awaited synchronously since nothing is waiting on an HTTP response for it; it skips gracefully (logs a warning) if a manually-triggered run is already in progress.
+
+### Realtime updates (WebSocket)
+
+A Socket.IO gateway (`scraping.gateway.ts`) broadcasts two events to every connected client whenever a run starts or finishes, so the frontend never has to poll for completion:
+
+| Event | Payload | When |
+|---|---|---|
+| `scraping:status` | `{ isRunning: boolean }` | Run starts / ends |
+| `scraping:completed` | `{ newJobs: number, sourcesRun: number }` | Run ends (success or partial failure) |
+
+`GET /scraping/status`'s `isRunning` field is the fallback for clients that reload mid-run or missed the socket event.
 
 ## Scraping sources (19)
 
