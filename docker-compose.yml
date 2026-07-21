@@ -1,0 +1,63 @@
+services:
+  db:
+    image: mysql:8
+    container_name: latam-job-board-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: latam_job_board
+      MYSQL_USER: latam
+      MYSQL_PASSWORD: latam_dev_pw
+      MYSQL_ROOT_PASSWORD: latam_dev_pw
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -ulatam -platam_dev_pw"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    image: node:20-alpine
+    container_name: latam-job-board-api-dev
+    working_dir: /app
+    command: sh -c "npm install && npm run start:dev"
+    ports:
+      - "3000:3000"
+    environment:
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+      MYSQL_USER: latam
+      MYSQL_PASSWORD: latam_dev_pw
+      MYSQL_DATABASE: latam_job_board
+      PORT: 3000
+      CORS_ORIGIN: http://localhost:5173
+      DEEPSEEK_API_KEY:
+      DEEPSEEK_MODEL: deepseek-v4-flash
+    volumes:
+      - ./apps/api:/app
+      - api_node_modules:/app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    image: node:20-alpine
+    container_name: latam-job-board-web-dev
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3000
+    volumes:
+      - ./apps/web:/app
+      - web_node_modules:/app/node_modules
+    depends_on:
+      - api
+
+volumes:
+  mysql_data:
+  api_node_modules:
+  web_node_modules:

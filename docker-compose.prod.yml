@@ -1,0 +1,62 @@
+services:
+  db:
+    image: mysql:8
+    container_name: latam-job-board-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-latam_job_board}
+      MYSQL_USER: ${MYSQL_USER:-latam}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u${MYSQL_USER:-latam} -p${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: latam-job-board-api
+    restart: always
+    environment:
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+      MYSQL_USER: ${MYSQL_USER:-latam}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-latam_job_board}
+      PORT: 3000
+      CORS_ORIGIN: ${APP_URL}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-v4-flash}
+    expose:
+      - "3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL:-}
+    container_name: latam-job-board-web
+    restart: always
+    expose:
+      - "80"
+    depends_on:
+      - api
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.latam-job-board.rule=Host(`${APP_DOMAIN}`)
+      - traefik.http.routers.latam-job-board.entrypoints=https
+      - traefik.http.routers.latam-job-board.tls=true
+      - traefik.http.routers.latam-job-board.tls.certresolver=letsencrypt
+      - traefik.http.services.latam-job-board.loadbalancer.server.port=80
+
+volumes:
+  mysql_data:

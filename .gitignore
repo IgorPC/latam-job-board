@@ -1,0 +1,22 @@
+
+# Internal planning docs (not for the public repo)
+SCRAPING.md
+BUSINESS_MODEL.md
+AI_INTEGRATION.md
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.prod
+
+# Logs
+*.log
+logs/

@@ -1,0 +1,272 @@
+[
+  {
+    "title": "Kraken",
+    "slug": "kraken",
+    "region": "Worldwide",
+    "careers_url": "https://jobs.lever.co/kraken",
+    "ats": "lever",
+    "ats_slug": "kraken",
+    "technologies": [
+      "cryptocurrency",
+      "finance",
+      "security"
+    ]
+  },
+  {
+    "title": "Anomali",
+    "slug": "anomali",
+    "region": "Americas",
+    "careers_url": "https://jobs.lever.co/anomali",
+    "ats": "lever",
+    "ats_slug": "anomali",
+    "technologies": [
+      "security",
+      "data"
+    ]
+  },
+  {
+    "title": "Appen",
+    "slug": "appen-2",
+    "region": "Americas & Europe",
+    "careers_url": "https://jobs.lever.co/appen-2",
+    "ats": "lever",
+    "ats_slug": "appen-2",
+    "technologies": [
+      "data",
+      "machine-learning"
+    ]
+  },
+  {
+    "title": "Findem",
+    "slug": "findem",
+    "region": "Other",
+    "careers_url": "https://jobs.lever.co/findem",
+    "ats": "lever",
+    "ats_slug": "findem",
+    "technologies": [
+      "data",
+      "search"
+    ]
+  },
+  {
+    "title": "Ollie",
+    "slug": "myollie",
+    "region": "Americas",
+    "careers_url": "https://jobs.lever.co/myollie",
+    "ats": "lever",
+    "ats_slug": "myollie",
+    "technologies": []
+  },
+  {
+    "title": "CircleCI",
+    "slug": "circleci",
+    "region": "Worldwide",
+    "careers_url": "https://boards.greenhouse.io/circleci",
+    "ats": "greenhouse",
+    "ats_slug": "circleci",
+    "technologies": [
+      "devops",
+      "ci-cd",
+      "go",
+      "python"
+    ]
+  },
+  {
+    "title": "MetaMask / ConsenSys",
+    "slug": "consensys",
+    "region": "Worldwide",
+    "careers_url": "https://boards.greenhouse.io/consensys/jobs/1990589",
+    "ats": "greenhouse",
+    "ats_slug": "consensys",
+    "technologies": [
+      "blockchain",
+      "javascript",
+      "solidity"
+    ]
+  },
+  {
+    "title": "Modern Health",
+    "slug": "modernhealth",
+    "region": "Americas",
+    "careers_url": "https://boards.greenhouse.io/modernhealth",
+    "ats": "greenhouse",
+    "ats_slug": "modernhealth",
+    "technologies": [
+      "python",
+      "javascript",
+      "react",
+      "data"
+    ]
+  },
+  {
+    "title": "Deel",
+    "slug": "deel",
+    "region": "Worldwide",
+    "careers_url": "https://jobs.ashbyhq.com/Deel",
+    "ats": "ashby",
+    "ats_slug": "Deel",
+    "technologies": [
+      "javascript",
+      "react",
+      "node",
+      "python",
+      "data"
+    ]
+  },
+  {
+    "title": "Luxor Technology",
+    "slug": "luxor",
+    "region": "Worldwide",
+    "careers_url": "https://jobs.ashbyhq.com/luxor",
+    "ats": "ashby",
+    "ats_slug": "luxor",
+    "technologies": [
+      "cryptocurrency",
+      "data",
+      "go"
+    ]
+  },
+  {
+    "title": "Hugging Face",
+    "slug": "huggingface",
+    "region": "Worldwide",
+    "careers_url": "https://apply.workable.com/huggingface/",
+    "ats": "workable",
+    "ats_slug": "huggingface",
+    "technologies": [
+      "python",
+      "machine-learning",
+      "data",
+      "nlp"
+    ]
+  },
+  {
+    "title": "BandLab",
+    "slug": "bandlabtechnologies",
+    "region": "Worldwide",
+    "careers_url": "https://apply.workable.com/bandlabtechnologies/",
+    "ats": "workable",
+    "ats_slug": "bandlabtechnologies",
+    "technologies": [
+      "javascript",
+      "react",
+      "mobile",
+      "audio"
+    ]
+  },
+  {
+    "title": "Devsquad",
+    "slug": "devsquad",
+    "region": "Worldwide",
+    "careers_url": "https://apply.workable.com/devsquad",
+    "ats": "workable",
+    "ats_slug": "devsquad",
+    "technologies": [
+      "javascript",
+      "react",
+      "laravel",
+      "php"
+    ]
+  },
+  {
+    "title": "Artefactual Systems",
+    "slug": "artefactual-systems",
+    "region": "Other",
+    "careers_url": "https://artefactual-systems.breezy.hr/",
+    "ats": "breezy",
+    "ats_slug": "artefactual-systems",
+    "technologies": [
+      "python",
+      "php"
+    ]
+  },
+  {
+    "title": "Connexa",
+    "slug": "connexa",
+    "region": "Worldwide",
+    "careers_url": "https://connexa.breezy.hr",
+    "ats": "breezy",
+    "ats_slug": "connexa",
+    "technologies": []
+  },
+  {
+    "title": "Astronomer",
+    "slug": "astronomer",
+    "region": "Other",
+    "careers_url": "https://astronomer.recruitee.com/",
+    "ats": "recruitee",
+    "ats_slug": "astronomer",
+    "technologies": [
+      "python",
+      "data",
+      "airflow",
+      "devops"
+    ]
+  },
+  {
+    "title": "Qatium",
+    "slug": "qatium",
+    "region": "Other",
+    "careers_url": "https://qatium.recruitee.com/",
+    "ats": "recruitee",
+    "ats_slug": "qatium",
+    "technologies": [
+      "javascript",
+      "react",
+      "data"
+    ]
+  },
+  {
+    "title": "CloudEra",
+    "slug": "cloudera",
+    "region": "Worldwide",
+    "careers_url": "https://cloudera.wd5.myworkdayjobs.com/External_Career",
+    "ats": null,
+    "ats_slug": null,
+    "technologies": [
+      "data",
+      "java",
+      "python",
+      "hadoop"
+    ]
+  },
+  {
+    "title": "Nvidia",
+    "slug": "nvidia",
+    "region": "Other",
+    "careers_url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite",
+    "ats": null,
+    "ats_slug": null,
+    "technologies": [
+      "gpu",
+      "cuda",
+      "c++",
+      "machine-learning"
+    ]
+  },
+  {
+    "title": "Palantir.net",
+    "slug": "palantir",
+    "region": "Americas",
+    "careers_url": "https://palantir.bamboohr.com/careers",
+    "ats": null,
+    "ats_slug": null,
+    "technologies": [
+      "drupal",
+      "php"
+    ]
+  },
+  {
+    "title": "PayScale",
+    "slug": "payscale",
+    "region": "Americas",
+    "careers_url": "https://jobs.smartrecruiters.com/PayScale/",
+    "ats": null,
+    "ats_slug": null,
+    "technologies": [
+      "data",
+      "javascript",
+      "python"
+    ]
+  }
+]
