@@ -4,6 +4,7 @@ import { ScrapingSource } from '../interfaces/scraping-context.interface';
 import { RawJob } from '../interfaces/raw-job.interface';
 import { HEADERS, DEFAULT_TIMEOUT_MS } from '../utils/http';
 import { normalizeDate } from '../utils/date-parser';
+import { formatSalaryRange } from '../utils/detectors';
 import { sleep } from '../utils/rate-limiter';
 
 export const remoteOkSource: ScrapingSource = {
@@ -24,8 +25,7 @@ export const remoteOkSource: ScrapingSource = {
         const listings = Array.isArray(data) ? data.filter((j: any) => j?.position) : [];
         for (const job of listings) {
           const descText = job.description ? cheerio.load(job.description).text() : '';
-          const salary =
-            job.salary_min && job.salary_max ? `USD ${job.salary_min.toLocaleString()}–${job.salary_max.toLocaleString()}` : '';
+          const salary = formatSalaryRange('USD', job.salary_min, job.salary_max);
 
           jobs.push({
             title: job.position,

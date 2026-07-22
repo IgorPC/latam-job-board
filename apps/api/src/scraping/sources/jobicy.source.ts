@@ -3,7 +3,7 @@ import { ScrapingSource } from '../interfaces/scraping-context.interface';
 import { RawJob } from '../interfaces/raw-job.interface';
 import { HEADERS, DEFAULT_TIMEOUT_MS } from '../utils/http';
 import { isRelevant, isRecent } from '../utils/filters';
-import { extractSalary } from '../utils/detectors';
+import { extractSalary, formatSalaryRange } from '../utils/detectors';
 import { sleep } from '../utils/rate-limiter';
 
 export const jobicySource: ScrapingSource = {
@@ -27,9 +27,8 @@ export const jobicySource: ScrapingSource = {
           const pubDate = (job.pubDate ?? '').slice(0, 10);
           if (!isRecent(pubDate, maxAgeDays)) continue;
 
-          const salary = job.annualSalaryMin
-            ? `${job.salaryCurrency ?? 'USD'} ${job.annualSalaryMin.toLocaleString()}–${job.annualSalaryMax?.toLocaleString() ?? ''}`
-            : extractSalary(desc);
+          const salary =
+            formatSalaryRange(job.salaryCurrency ?? 'USD', job.annualSalaryMin, job.annualSalaryMax) || extractSalary(desc);
 
           jobs.push({
             title: job.jobTitle,

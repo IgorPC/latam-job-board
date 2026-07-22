@@ -183,11 +183,48 @@ const SALARY_PATTERNS = [
   /\$[\d,.]+[kK]?(?:\s*(?:USD|\/yr|\/year))?/,
 ];
 
+// Bare numbers picked up from free-text descriptions are only worth showing
+// if they plausibly look like real pay (not a team size, a year, a version
+// number, etc). 1,000 covers a monthly LATAM-remote wage; 2,000,000 rules
+// out garbage matches with no sane upper bound.
+const MIN_PLAUSIBLE_SALARY = 1_000;
+const MAX_PLAUSIBLE_SALARY = 2_000_000;
+
+function parseSalaryAmount(raw: string): number {
+  const kMatch = /^([\d,.]+)\s*[kK]$/.exec(raw.trim());
+  const numeric = (kMatch ? kMatch[1] : raw).replace(/,/g, '');
+  const value = parseFloat(numeric);
+  return kMatch ? value * 1000 : value;
+}
+
+function isPlausibleSalary(value: number): boolean {
+  return Number.isFinite(value) && value >= MIN_PLAUSIBLE_SALARY && value <= MAX_PLAUSIBLE_SALARY;
+}
+
 export function extractSalary(text: string): string {
   if (!text) return '';
   for (const pattern of SALARY_PATTERNS) {
     const match = text.match(pattern);
-    if (match) return match[0].trim();
+    if (!match) continue;
+
+    const amounts = (match[0].match(/[\d,.]+\s*[kK]?/g) ?? []).map(parseSalaryAmount);
+    if (!amounts.length || !amounts.every(isPlausibleSalary)) continue;
+
+    return match[0].trim();
   }
   return '';
+}
+
+// Builds a salary string from structured min/max fields (as returned by
+// Jobicy/Himalayas/RemoteOK's own APIs), suppressing any value that isn't
+// plausible rather than rendering a bare currency code with no real number.
+export function formatSalaryRange(currency: string, min?: number | null, max?: number | null): string {
+  const validMin = typeof min === 'number' && isPlausibleSalary(min) ? min : undefined;
+  const validMax = typeof max === 'number' && isPlausibleSalary(max) ? max : undefined;
+
+  if (validMin === undefined && validMax === undefined) return '';
+  if (validMin !== undefined && validMax !== undefined && validMin !== validMax) {
+    return `${currency} ${validMin.toLocaleString()}–${validMax.toLocaleString()}`;
+  }
+  return `${currency} ${(validMin ?? validMax)!.toLocaleString()}`;
 }

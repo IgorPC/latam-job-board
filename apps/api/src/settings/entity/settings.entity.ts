@@ -23,6 +23,7 @@ export const DEFAULT_ENABLED_SOURCES = [
   'jobicy',
   'strider',
   'fitnext',
+  'remote-tech-companies',
 ];
 
 @Entity('settings')

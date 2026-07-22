@@ -4,6 +4,20 @@ import dayjs from 'dayjs';
 import { ScrapingSource } from '../interfaces/scraping-context.interface';
 import { RawJob } from '../interfaces/raw-job.interface';
 import { HEADERS, DEFAULT_TIMEOUT_MS } from '../utils/http';
+import { sleep } from '../utils/rate-limiter';
+
+// The listing page only has a one-line title card; the real description
+// lives on each job's own detail page, inside a `.job-description` element.
+async function fetchDescription(url: string): Promise<string | null> {
+  try {
+    const { data: html } = await axios.get(url, { headers: HEADERS, timeout: DEFAULT_TIMEOUT_MS });
+    const $ = cheerio.load(html);
+    const desc = $('.job-description').first().html();
+    return desc?.trim() || null;
+  } catch {
+    return null;
+  }
+}
 
 export const laravelRemotelySource: ScrapingSource = {
   key: 'laravelremotely',
@@ -41,13 +55,16 @@ export const laravelRemotelySource: ScrapingSource = {
       const tags = inMatch ? after.slice(inMatch.index! + inMatch[0].length).trim() : '';
       if (!title) continue;
 
+      await sleep(700);
+      const richDesc = await fetchDescription(url);
+
       jobs.push({
         title,
         company: companyPart,
         url,
         date: today,
         source: 'LaravelRemotely',
-        _desc: `${title} ${tags}`,
+        _desc: richDesc ?? `${title} ${tags}`,
         stack: 'Laravel',
         type: 'Remote',
         salary: '',

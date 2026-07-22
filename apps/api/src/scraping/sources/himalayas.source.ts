@@ -4,7 +4,7 @@ import { RawJob } from '../interfaces/raw-job.interface';
 import { HEADERS, DEFAULT_TIMEOUT_MS } from '../utils/http';
 import { isRelevant, isRecent } from '../utils/filters';
 import { normalizeDate } from '../utils/date-parser';
-import { extractSalary } from '../utils/detectors';
+import { extractSalary, formatSalaryRange } from '../utils/detectors';
 import { sleep } from '../utils/rate-limiter';
 
 const MAX_PAGES = 8;
@@ -39,9 +39,8 @@ export const himalayasSource: ScrapingSource = {
         const pubDate = normalizeDate(job.publishedAt);
         if (!isRecent(pubDate, maxAgeDays)) continue;
 
-        const salary = job.salary
-          ? `${job.salary.currency ?? 'USD'} ${job.salary.min?.toLocaleString() ?? ''}–${job.salary.max?.toLocaleString() ?? ''}`
-          : extractSalary(desc);
+        const salary =
+          formatSalaryRange(job.salary?.currency ?? 'USD', job.salary?.min, job.salary?.max) || extractSalary(desc);
 
         jobs.push({
           title,

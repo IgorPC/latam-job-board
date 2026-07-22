@@ -31,7 +31,18 @@ const NEGATIVE_LATAM_KW = [
   'north america only', 'united states only', 'based in the us', 'based in the uk',
   'based in europe', 'us-based', 'uk-based', 'eu-based', 'us citizens only',
   'us residents only', 'not available in latam', 'excluding latam',
+  'only open to', 'only available to', 'only accepting candidates from',
+  'restricted to candidates in', 'this position is only available in',
+  'candidates outside of', 'will not be considered', 'applicants must be located in',
+  'must currently reside in', 'only for residents of', 'open only to residents of',
+  'this role is only open to', 'only candidates based in', 'is only available from',
 ];
+
+// A structured allow-list, e.g. from a JobPosting JSON-LD
+// applicantLocationRequirements block (see json-ld.ts), enriched into the
+// description as "Eligible countries only: X, Y, Z." — this is ground truth,
+// not a keyword guess, so it takes priority over both keyword lists below.
+const ELIGIBLE_COUNTRIES_RE = /eligible countries only:\s*([^.]+)\./i;
 
 // `country` is the user-configured LATAM country (e.g. "Brazil", "Argentina")
 // — kept dynamic so the board isn't hardcoded to Brazil for other LATAM users.
@@ -42,6 +53,11 @@ export function acceptsLatam(title: string, desc: string, type: string, country:
 
   const text = `${title} ${desc}`.toLowerCase();
   const countryKw = country.toLowerCase();
+
+  const allowListMatch = text.match(ELIGIBLE_COUNTRIES_RE);
+  if (allowListMatch && countryKw) {
+    return allowListMatch[1].includes(countryKw) ? 'Yes' : 'No';
+  }
 
   if (NEGATIVE_LATAM_KW.some((kw) => text.includes(kw))) return 'No';
   if (countryKw && (text.includes(`not available in ${countryKw}`) || text.includes(`excluding ${countryKw}`))) return 'No';

@@ -6,10 +6,32 @@ import { RawJob } from '../interfaces/raw-job.interface';
 import { HEADERS, DEFAULT_TIMEOUT_MS } from '../utils/http';
 import { isRelevant, isRecent } from '../utils/filters';
 import { sleep } from '../utils/rate-limiter';
+import { extractJobPostingJsonLd } from '../utils/json-ld';
+import { isoToCountryName } from '../utils/iso-countries';
 
 const CATEGORIES = ['back-end-development', 'it-development'];
 const IGNORED_LINK_TEXT = ['view job', 'apply', 'see job'];
 const MAX_PAGES = 3;
+
+// Jobgether embeds a schema.org JobPosting <script type="application/ld+json">
+// on each /offer/ detail page with the full HTML description and, when the
+// role is restricted, an authoritative applicantLocationRequirements list —
+// far richer and more reliable than the listing-page card text.
+async function fetchDescription(url: string): Promise<string | null> {
+  try {
+    const { data: html } = await axios.get(url, { headers: HEADERS, timeout: DEFAULT_TIMEOUT_MS });
+    const jobPosting = extractJobPostingJsonLd(html);
+    if (!jobPosting?.description) return null;
+
+    let desc = jobPosting.description;
+    if (jobPosting.countries?.length) {
+      desc += ` Eligible countries only: ${jobPosting.countries.map(isoToCountryName).join(', ')}.`;
+    }
+    return desc;
+  } catch {
+    return null;
+  }
+}
 
 export const jobgetherSource: ScrapingSource = {
   key: 'jobgether',
@@ -44,9 +66,12 @@ export const jobgetherSource: ScrapingSource = {
           if (seen.has(href)) continue;
           seen.add(href);
 
-          const context = $(el).closest('article, li, div').text().replace(/\s+/g, ' ').trim();
-          if (!isRelevant(title, context, profile)) continue;
+          const listingContext = $(el).closest('article, li, div').text().replace(/\s+/g, ' ').trim();
+          if (!isRelevant(title, listingContext, profile)) continue;
           if (!isRecent(today, maxAgeDays)) continue;
+
+          await sleep(700);
+          const richDesc = await fetchDescription(href);
 
           jobs.push({
             title,
@@ -54,7 +79,7 @@ export const jobgetherSource: ScrapingSource = {
             url: href,
             date: today,
             source: 'Jobgether',
-            _desc: context,
+            _desc: richDesc ?? listingContext,
             stack: '',
             type: 'Remote',
             salary: '',

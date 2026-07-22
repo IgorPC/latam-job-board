@@ -9,9 +9,6 @@ import { sleep } from '../utils/rate-limiter';
 const README_URL =
   'https://raw.githubusercontent.com/AndrewStetsenko/tech-jobs-with-relocation/master/README.md';
 
-const EXTRA_GREENHOUSE_TOKENS = ['automattic', 'gitlab', 'doist', 'zapier', 'buffer', 'close', 'invision', 'hotjar', 'loom'];
-const EXTRA_LEVER_TOKENS = ['deel', 'remote', 'oyster', 'atlas'];
-
 const logger = new Logger('RelocationCompaniesSource');
 
 async function extractTokens(): Promise<{ greenhouse: string[]; lever: string[] }> {
@@ -39,10 +36,7 @@ export const relocationCompaniesSource: ScrapingSource = {
     const jobs: RawJob[] = [];
     const { greenhouse, lever } = await extractTokens();
 
-    const greenhouseTokens = [...new Set([...greenhouse, ...EXTRA_GREENHOUSE_TOKENS])];
-    const leverTokens = [...new Set([...lever, ...EXTRA_LEVER_TOKENS])];
-
-    for (const token of greenhouseTokens) {
+    for (const token of greenhouse) {
       await sleep(800);
       try {
         const { data } = await axios.get(`https://boards-api.greenhouse.io/v1/boards/${token}/jobs`, {
@@ -70,7 +64,7 @@ export const relocationCompaniesSource: ScrapingSource = {
       }
     }
 
-    for (const token of leverTokens) {
+    for (const token of lever) {
       await sleep(800);
       try {
         const { data } = await axios.get(`https://api.lever.co/v0/postings/${token}`, {
