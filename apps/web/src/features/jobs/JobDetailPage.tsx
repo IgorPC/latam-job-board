@@ -7,6 +7,8 @@ import { ErrorState } from '@/components/ErrorState';
 import { isSafeUrl } from '@/utils/url';
 import { useJobById } from './hooks/useJobById';
 import { LatamBadge } from './components/LatamBadge';
+import { CompareCompatibilityButton } from '@/features/ai/components/CompareCompatibilityButton';
+import { AnalysisHistoryButton } from '@/features/ai/components/AnalysisHistoryButton';
 
 export function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -84,6 +86,11 @@ export function JobDetailPage() {
           ) : (
             <p className="mt-3 text-sm leading-relaxed text-secondary">No description was captured for this posting.</p>
           )}
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-2 border-t border-border pt-6">
+          <CompareCompatibilityButton jobId={job.id} />
+          <AnalysisHistoryButton jobId={job.id} />
         </div>
 
         <div className="mt-8">

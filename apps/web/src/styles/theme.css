@@ -89,15 +89,18 @@
     --drop-shadow-iphone-mockup: 20px 12px 18px rgba(16, 24, 40, 0.2);
 
     /* ANIMATIONS */
-    --animate-marquee: marquee 60s linear infinite;
+    --animate-marquee: marquee 90s linear infinite;
     --animate-caret-blink: caret-blink 1s infinite;
 
+    /* Track renders SOURCES twice back-to-back, so sliding by -50% (one
+       copy's width) hands off to the second copy exactly as the first
+       exits — a seamless loop instead of a visible reset at -100%. */
     @keyframes marquee {
         0% {
             transform: translateX(0);
         }
         100% {
-            transform: translateX(-100%);
+            transform: translateX(-50%);
         }
     }
 
@@ -533,7 +536,6 @@
     --color-latam-maybe: #f59e0b;
 
     /* ANIMATIONS carried over from the previous Tailwind v3 config */
-    --animate-marquee: marquee 32s linear infinite;
     --animate-fade-in-up: fade-in-up 0.5s ease-out both;
     --animate-glow: glow 3s ease-in-out infinite;
 

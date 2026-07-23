@@ -14,11 +14,10 @@ function toStackQuery(stack: string[]): string {
   return stack.map((s) => (s.includes(' ') ? `"${s}"` : s)).join(' OR ');
 }
 
-export function generateBooleanLinks(primaryStack: string[], secondaryStack: string[] = []): BooleanLink[] {
-  const allStack = [...primaryStack, ...secondaryStack];
-  if (allStack.length === 0) return [];
+export function generateBooleanLinks(stack: string[]): BooleanLink[] {
+  if (stack.length === 0) return [];
 
-  const stackQuery = toStackQuery(allStack);
+  const stackQuery = toStackQuery(stack);
 
   return [
     {

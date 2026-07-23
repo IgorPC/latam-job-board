@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { CountdownTimer } from '@/features/scraping/components/CountdownTimer';
+import { ResumesButton } from '@/features/ai/components/ResumesButton';
+import { ReconfigureButton } from '@/features/settings/components/ReconfigureButton';
 
 export function Header() {
   return (
@@ -14,12 +16,8 @@ export function Header() {
 
         <div className="flex items-center gap-3">
           <CountdownTimer />
-          <Link
-            to="/setup"
-            className="rounded-lg bg-gradient-to-r from-cta to-accent px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition-transform hover:scale-105 hover:brightness-110"
-          >
-            Reconfigure
-          </Link>
+          <ResumesButton />
+          <ReconfigureButton />
         </div>
       </div>
     </header>

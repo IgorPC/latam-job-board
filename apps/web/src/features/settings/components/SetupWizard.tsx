@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
+import { Tooltip } from '@/components/base/tooltip/tooltip';
 import { useSaveSettings } from '../hooks/useSaveSettings';
 import { useSettings } from '../hooks/useSettings';
 import { useTriggerScraping } from '@/features/scraping/hooks/useTriggerScraping';
@@ -224,6 +225,12 @@ export function SetupWizard({ onComplete }: SetupWizardProps) {
             <Button type="button" color="primary" onClick={handleContinue}>
               Continue
             </Button>
+          ) : existingSettings?.editLocked ? (
+            <Tooltip title="Reconfiguring is disabled" description="This deployment has LOCK_EDIT enabled and is read-only.">
+              <Button type="button" color="primary" isDisabled>
+                Start scanning
+              </Button>
+            </Tooltip>
           ) : (
             <Button type="submit" color="primary" isLoading={isSubmitting} isDisabled={isDone}>
               {isDone ? 'Done' : 'Start scanning'}

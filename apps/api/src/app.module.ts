@@ -7,6 +7,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JobsModule } from './jobs/jobs.module';
 import { SettingsModule } from './settings/settings.module';
 import { ScrapingModule } from './scraping/scraping.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ScrapingModule } from './scraping/scraping.module';
     JobsModule,
     SettingsModule,
     ScrapingModule,
+    AiModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

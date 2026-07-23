@@ -1,7 +1,8 @@
-import { Body, Controller, Get, HttpException, InternalServerErrorException, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, InternalServerErrorException, Logger, Post, UseGuards } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { CreateSettingsDto } from './dto/create-settings.dto';
 import { SETTINGS_CONTROLLER_PATH, SETTINGS_ROUTES } from './consts/endpoints';
+import { LockEditGuard } from '../common/guards/lock-edit.guard';
 
 @Controller(SETTINGS_CONTROLLER_PATH)
 export class SettingsController {
@@ -20,6 +21,7 @@ export class SettingsController {
     }
   }
 
+  @UseGuards(LockEditGuard)
   @Post(SETTINGS_ROUTES.CREATE)
   async save(@Body() dto: CreateSettingsDto) {
     try {

@@ -10,6 +10,11 @@ export class SettingsService {
   constructor(private readonly repo: SettingsRepository) {}
 
   async get() {
+    // Piggybacks on the settings response (already fetched app-wide on load)
+    // rather than a dedicated endpoint — same pattern as /ai/status's
+    // aiEnabled, just one field instead of a whole extra round-trip.
+    const editLocked = process.env.LOCK_EDIT === 'true';
+
     const current = await this.repo.findCurrent();
     if (!current) {
       this.logger.debug('get: no settings row yet, setupCompleted=false');
@@ -23,9 +28,10 @@ export class SettingsService {
         setupCompleted: false,
         lastSyncAt: null,
         isScrapingRunning: false,
+        editLocked,
       };
     }
-    return current;
+    return { ...current, editLocked };
   }
 
   async save(dto: CreateSettingsDto) {

@@ -9,6 +9,7 @@ export interface Settings {
   latamCountry: string;
   setupCompleted: boolean;
   lastSyncAt: string | null;
+  editLocked: boolean;
 }
 
 export interface SaveSettingsPayload {
