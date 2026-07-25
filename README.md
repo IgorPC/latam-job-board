@@ -29,7 +29,7 @@ The repo is a small monorepo with two apps: the **API** (NestJS) and the **web c
 
 ## Contributing
 
-This is an open project — contributions are welcome. See [`HOW_TO__CONTRIBUTE.md`](HOW_TO__CONTRIBUTE.md)
+This is an open project — contributions are welcome. See [`HOW_TO_CONTRIBUTE.md`](HOW_TO_CONTRIBUTE.md)
 for the step-by-step: cloning `main`, branching, and the commit/PR convention (`feat:`/`fix:`/`chore:`).
 
 ---
