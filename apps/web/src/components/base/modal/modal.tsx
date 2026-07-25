@@ -52,7 +52,7 @@ export function Modal({ isOpen, onOpenChange, title, children, size = 'md' }: Mo
                   <XClose className="size-4" />
                 </button>
               </div>
-              <div className="mt-4 max-h-[70vh] overflow-y-auto">{children}</div>
+              <div className="styled-scrollbar mt-4 max-h-[70vh] overflow-y-auto pr-1">{children}</div>
             </>
           )}
         </Dialog>
